@@ -1,11 +1,13 @@
 import csv
 import selenium
 import random
-import logging
+#import logging
+import sys
 from seleniumwire import webdriver
+from webdriver_manager.chrome import ChromeDriverManager
 from seleniumwire.undetected_chromedriver.v2 import Chrome, ChromeOptions
 #logging.basicConfig(level=logging.DEBUG)
-
+#pyinstaller --noconfirm --onefile --console scraper.py --add-binary "C:\Users\Lorenzo Vella\Documents\alecbrabo\Selenium-csv-google-Scraper\chromedriver.exe;./"
 class Scraper():
     # proxylist.txt should be in format: http://login:pass@host:port
     proxy = lambda x: random.choice(list(open('proxylist.txt')))
@@ -19,7 +21,7 @@ class Scraper():
             }
         }
         #options.add_experimental_option('excludeSwitches', ['enable-logging'])
-        self.driver = Chrome(executable_path='chromedriver.exe', options=options, seleniumwire_options=wireoptions)
+        self.driver = Chrome(ChromeDriverManager().install(), options=options, seleniumwire_options=wireoptions)
         self.driver.set_page_load_timeout(30)
 
     def data(self, q):
@@ -79,7 +81,6 @@ def runReader(startFrom=0):
             scrapedData = scraperInstance.data(row[hotelNameCol])
             newData.append(scrapedData)
             print("Processando "+str(len(newData))+" de "+numberOfLines+" | "+scrapedData['newName'][:15]+"... | "+scrapedData['address'][:15]+"... | "+scrapedData['url'][:15]+"... | "+scrapedData['phone'][:15])
-        scraperInstance.close()
         add_column_in_csv(inputFile, inputFile.replace('.','Output-'+str(len(newData))+'.',1),startFrom)
     except Exception as e:
         print(e)
@@ -121,5 +122,6 @@ while(True):
                 csvReader = csv.DictReader(csvDataFile, delimiter=csvDelimiter)
                 runReader()
         except (Exception, KeyboardInterrupt) as e:
+            print(e)
             print("Houve um erro e a pesquisa foi salva com "+str(len(newData))+" resultados")
             add_column_in_csv(inputFile, inputFile.replace('.','Output-'+str(len(newData))+'.',1))

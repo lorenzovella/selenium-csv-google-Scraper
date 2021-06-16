@@ -1,1 +1,1 @@
-_env\scripts\activate & python scraper.py & pause
+_env\scripts\activate & py scraper.py & pause
